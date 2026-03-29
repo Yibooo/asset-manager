@@ -22,7 +22,7 @@ interface FormData {
   wechat: string;
   alipay: string;
   icbc: string;
-  yulinCNY: string;
+  yulinPiggyJPY: string;
   cnyJpyRate: string;
   memo: string;
 }
@@ -42,7 +42,7 @@ const defaultForm: FormData = {
   wechat: "",
   alipay: "",
   icbc: "",
-  yulinCNY: "",
+  yulinPiggyJPY: "1000",
   cnyJpyRate: "21.5",
   memo: "",
 };
@@ -94,7 +94,7 @@ export default function InputPage() {
       wechat: String(prev.wechat),
       alipay: String(prev.alipay),
       icbc: String(prev.icbc),
-      yulinCNY: String(prev.yulinCNY),
+      yulinPiggyJPY: String((prev as any).yulinPiggyJPY ?? "1000"),
       cnyJpyRate: String(prev.cnyJpyRate),
       memo: "",
     });
@@ -108,14 +108,14 @@ export default function InputPage() {
     (parseFloat(form.yuchoYulin) || 0) +
     (parseFloat(form.mizuhoCash) || 0);
 
-  const totalCNY =
+  const myCNY =
     (parseFloat(form.wechat) || 0) +
     (parseFloat(form.alipay) || 0) +
-    (parseFloat(form.icbc) || 0) +
-    (parseFloat(form.yulinCNY) || 0);
+    (parseFloat(form.icbc) || 0);
 
-  const totalCNYinJPY = Math.round(totalCNY * (parseFloat(form.cnyJpyRate) || 0));
-  const grandTotal = totalJPY + totalCNYinJPY;
+  const totalCNYinJPY = Math.round(myCNY * (parseFloat(form.cnyJpyRate) || 0));
+  const piggyJPY = parseFloat(form.yulinPiggyJPY) || 0;
+  const grandTotal = totalJPY + totalCNYinJPY + piggyJPY;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -140,7 +140,7 @@ export default function InputPage() {
         wechat: parseFloat(form.wechat) || 0,
         alipay: parseFloat(form.alipay) || 0,
         icbc: parseFloat(form.icbc) || 0,
-        yulinCNY: parseFloat(form.yulinCNY) || 0,
+        yulinPiggyJPY: parseFloat(form.yulinPiggyJPY) || 0,
         cnyJpyRate: parseFloat(form.cnyJpyRate) || 21.5,
         memo: form.memo || undefined,
       });
@@ -334,12 +334,11 @@ export default function InputPage() {
           <InputField label="WeChat Pay" fieldKey="wechat" suffix="万元" placeholder="8.4" />
           <InputField label="Alipay" fieldKey="alipay" suffix="万元" placeholder="0" />
           <InputField label="工商銀行" fieldKey="icbc" suffix="万元" placeholder="0" />
-          <InputField label="猪猪（Yulin合計）" fieldKey="yulinCNY" suffix="万元" placeholder="50" />
 
           <div className="pt-2 border-t border-gray-100 space-y-1">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-500">人民元合計</span>
-              <span className="font-medium text-gray-700">{totalCNY.toFixed(1)} 万元</span>
+              <span className="text-gray-500">自分の人民元合計</span>
+              <span className="font-medium text-gray-700">{myCNY.toFixed(1)} 万元</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">円換算</span>
@@ -348,15 +347,29 @@ export default function InputPage() {
           </div>
         </div>
 
+        {/* 猪猪（Yulin資産） */}
+        <div className="bg-white rounded-2xl p-5 shadow-sm border border-purple-100">
+          <h2 className="text-sm font-semibold text-gray-800 mb-1">猪猪🐷（Yulin資産・円換算済み）</h2>
+          <p className="text-xs text-gray-400 mb-3">例: 50万元 ≈ 1000万円（固定値で入力）</p>
+          <div className="flex items-center gap-2">
+            <input
+              type="number"
+              value={form.yulinPiggyJPY}
+              onChange={set("yulinPiggyJPY")}
+              placeholder="1000"
+              className="flex-1 px-3 py-2 border border-purple-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+            />
+            <span className="text-sm text-gray-500 w-10 shrink-0">万円</span>
+          </div>
+        </div>
+
         {/* 世帯総資産プレビュー */}
         <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white">
           <p className="text-blue-200 text-sm">世帯総資産（プレビュー）</p>
-          <p className="text-3xl font-bold mt-1">
-            {grandTotal.toLocaleString()} 万円
-          </p>
-          <p className="text-blue-200 text-xs mt-2">
-            日本円 {totalJPY.toLocaleString()}万円 + 人民元 {totalCNYinJPY.toLocaleString()}万円
-          </p>
+          <p className="text-3xl font-bold mt-1">{grandTotal.toLocaleString()} 万円</p>
+          <div className="text-blue-200 text-xs mt-2 space-y-0.5">
+            <p>日本円 {totalJPY.toLocaleString()}万円 ＋ 人民元 {totalCNYinJPY.toLocaleString()}万円 ＋ 猪猪 {piggyJPY.toLocaleString()}万円</p>
+          </div>
         </div>
 
         {/* メモ */}

@@ -10,7 +10,6 @@ async function getUserIdFromToken(
     .query("sessions")
     .withIndex("by_token", (q: any) => q.eq("token", token))
     .unique();
-
   if (!session || session.expiresAt < Date.now()) {
     throw new Error("ログインが必要です");
   }
@@ -34,24 +33,20 @@ export const upsertSnapshot = mutation({
     wechat: v.number(),
     alipay: v.number(),
     icbc: v.number(),
-    yulinCNY: v.number(),
     cnyJpyRate: v.number(),
+    yulinPiggyJPY: v.number(),
     memo: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getUserIdFromToken(ctx, args.token);
 
     const totalJPY =
-      args.rakuten +
-      args.corporateDC +
-      args.rsu +
-      args.yuchoBenri +
-      args.yuchoYulin +
-      args.mizuhoCash;
+      args.rakuten + args.corporateDC + args.rsu +
+      args.yuchoBenri + args.yuchoYulin + args.mizuhoCash;
 
-    const totalCNY = args.wechat + args.alipay + args.icbc + args.yulinCNY;
-    const totalCNYinJPY = Math.round(totalCNY * args.cnyJpyRate);
-    const grandTotal = totalJPY + totalCNYinJPY;
+    const myCNY = args.wechat + args.alipay + args.icbc;
+    const totalCNYinJPY = Math.round(myCNY * args.cnyJpyRate);
+    const grandTotal = totalJPY + totalCNYinJPY + args.yulinPiggyJPY;
 
     const existing = await ctx.db
       .query("assetSnapshots")
@@ -76,8 +71,8 @@ export const upsertSnapshot = mutation({
       wechat: args.wechat,
       alipay: args.alipay,
       icbc: args.icbc,
-      yulinCNY: args.yulinCNY,
       cnyJpyRate: args.cnyJpyRate,
+      yulinPiggyJPY: args.yulinPiggyJPY,
       totalJPY,
       totalCNYinJPY,
       grandTotal,
@@ -98,19 +93,16 @@ export const getSnapshots = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
     if (!args.token) return [];
-
     const session = await ctx.db
       .query("sessions")
       .withIndex("by_token", (q) => q.eq("token", args.token!))
       .unique();
-
     if (!session || session.expiresAt < Date.now()) return [];
 
     const snapshots = await ctx.db
       .query("assetSnapshots")
       .withIndex("by_user", (q) => q.eq("userId", session.userId))
       .collect();
-
     return snapshots.sort((a, b) => a.yearMonth.localeCompare(b.yearMonth));
   },
 });
@@ -119,21 +111,17 @@ export const getLatestSnapshot = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
     if (!args.token) return null;
-
     const session = await ctx.db
       .query("sessions")
       .withIndex("by_token", (q) => q.eq("token", args.token!))
       .unique();
-
     if (!session || session.expiresAt < Date.now()) return null;
 
     const snapshots = await ctx.db
       .query("assetSnapshots")
       .withIndex("by_user", (q) => q.eq("userId", session.userId))
       .collect();
-
     if (snapshots.length === 0) return null;
-
     return snapshots.sort((a, b) => b.yearMonth.localeCompare(a.yearMonth))[0];
   },
 });
@@ -142,12 +130,8 @@ export const deleteSnapshot = mutation({
   args: { token: v.string(), snapshotId: v.id("assetSnapshots") },
   handler: async (ctx, args) => {
     const userId = await getUserIdFromToken(ctx, args.token);
-
     const snapshot = await ctx.db.get(args.snapshotId);
-    if (!snapshot || snapshot.userId !== userId) {
-      throw new Error("権限がありません");
-    }
-
+    if (!snapshot || snapshot.userId !== userId) throw new Error("権限がありません");
     await ctx.db.delete(args.snapshotId);
   },
 });

@@ -37,7 +37,6 @@ export const ACCOUNT_LABELS: Record<string, string> = {
   wechat: "WeChat Pay",
   alipay: "Alipay",
   icbc: "工商銀行",
-  yulinCNY: "猪猪（Yulin合計）",
 };
 
 export const ACCOUNT_COLORS: Record<string, string> = {
@@ -50,7 +49,6 @@ export const ACCOUNT_COLORS: Record<string, string> = {
   wechat: "#f43f5e",
   alipay: "#fb923c",
   icbc: "#e879f9",
-  yulinCNY: "#a78bfa",
 };
 
 export const JPY_ACCOUNTS = [
@@ -62,9 +60,18 @@ export const JPY_ACCOUNTS = [
   "mizuhoCash",
 ] as const;
 
-export const CNY_ACCOUNTS = [
-  "wechat",
-  "alipay",
-  "icbc",
-  "yulinCNY",
+export const CNY_ACCOUNTS = ["wechat", "alipay", "icbc"] as const;
+
+// グラフ用カテゴリ定義
+export const CURRENCY_KEYS = [
+  { key: "JPY現金・預金",        color: "#10b981" },
+  { key: "JPY投資（楽天/DC）",   color: "#3b82f6" },
+  { key: "USD（RSU）",           color: "#f59e0b" },
+  { key: "CNY自分",              color: "#f43f5e" },
+  { key: "妻の資産（Yulin）",    color: "#a78bfa" },
+] as const;
+
+export const RISK_KEYS = [
+  { key: "低リスク（現金・預金）",      color: "#10b981" },
+  { key: "中リスク（株式・投資・年金）", color: "#3b82f6" },
 ] as const;

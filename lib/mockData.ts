@@ -1,53 +1,87 @@
-// デモ用モックデータ（実際の入力データを反映）
-export const MOCK_SNAPSHOTS = [
-  {
-    _id: "mock_1",
-    yearMonth: "2024-11",
-    rakuten: 2900, corporateDC: 70, rsu: 40,
-    yuchoBenri: 185, yuchoYulin: 20, mizuhoCash: 35,
-    wechat: 9.9, alipay: 14.6, icbc: 1.8, yulinCNY: 0,
-    cnyJpyRate: 20.9,
-    totalJPY: 3250, totalCNYinJPY: 550, grandTotal: 3800,
-    memo: "史上最高値更新・前年比+670万円",
-  },
-  {
-    _id: "mock_2",
-    yearMonth: "2024-12",
-    rakuten: 3000, corporateDC: 75, rsu: 40,
-    yuchoBenri: 205, yuchoYulin: 20, mizuhoCash: 20,
-    wechat: 9.5, alipay: 13.6, icbc: 1.7, yulinCNY: 0,
-    cnyJpyRate: 21.8,
-    totalJPY: 3360, totalCNYinJPY: 540, grandTotal: 3900,
-    memo: "史上最高値更新・前年比+650万円",
-  },
-  {
-    _id: "mock_3",
-    yearMonth: "2025-01",
-    rakuten: 3000, corporateDC: 85, rsu: 40,
-    yuchoBenri: 230, yuchoYulin: 25, mizuhoCash: 20,
-    wechat: 8.7, alipay: 0, icbc: 0, yulinCNY: 23.8,
-    cnyJpyRate: 21.0,
-    totalJPY: 3400, totalCNYinJPY: 500, grandTotal: 3900,
-    memo: "前年比+780万円",
-  },
-  {
-    _id: "mock_4",
-    yearMonth: "2025-02",
-    rakuten: 3050, corporateDC: 90, rsu: 40,
-    yuchoBenri: 220, yuchoYulin: 25, mizuhoCash: 40,
-    wechat: 8.5, alipay: 0, icbc: 0, yulinCNY: 23.5,
-    cnyJpyRate: 21.3,
-    totalJPY: 3465, totalCNYinJPY: 500, grandTotal: 3965,
-    memo: "",
-  },
-  {
-    _id: "mock_5",
-    yearMonth: "2025-03",
-    rakuten: 3000, corporateDC: 95, rsu: 40,
-    yuchoBenri: 230, yuchoYulin: 80, mizuhoCash: 30,
-    wechat: 8.4, alipay: 0, icbc: 0, yulinCNY: 23.4,
-    cnyJpyRate: 21.4,
-    totalJPY: 3475, totalCNYinJPY: 501, grandTotal: 3976,
-    memo: "25年1月比+800万円",
-  },
+// 全過去実績データ（2019〜2025/03）
+// grandTotal = totalJPY + totalCNYinJPY + yulinPiggyJPY
+
+export interface Snapshot {
+  _id: string;
+  yearMonth: string;
+  rakuten: number;     // 楽天/ウェルスナビ（万円）
+  corporateDC: number;
+  rsu: number;
+  yuchoBenri: number;
+  yuchoYulin: number;
+  mizuhoCash: number;
+  wechat: number;      // 万元
+  alipay: number;      // 万元
+  icbc: number;        // 万元
+  cnyJpyRate: number;
+  yulinPiggyJPY: number; // 猪猪（万円）
+  totalJPY: number;
+  totalCNYinJPY: number;
+  grandTotal: number;
+  memo: string;
+}
+
+function snap(
+  id: string,
+  ym: string,
+  rakuten: number,
+  dc: number,
+  rsu: number,
+  yucho: number,
+  yulinYucho: number,
+  mizuho: number,
+  wechat: number,
+  alipay: number,
+  icbc: number,
+  rate: number,
+  piggy: number,
+  memo: string
+): Snapshot {
+  const totalJPY = rakuten + dc + rsu + yucho + yulinYucho + mizuho;
+  const myCNY = wechat + alipay + icbc;
+  const totalCNYinJPY = Math.round(myCNY * rate);
+  const grandTotal = totalJPY + totalCNYinJPY + piggy;
+  return { _id: id, yearMonth: ym, rakuten, corporateDC: dc, rsu, yuchoBenri: yucho, yuchoYulin: yulinYucho, mizuhoCash: mizuho, wechat, alipay, icbc, cnyJpyRate: rate, yulinPiggyJPY: piggy, totalJPY, totalCNYinJPY, grandTotal, memo };
+}
+
+export const MOCK_SNAPSHOTS: Snapshot[] = [
+  // ━━━ 2019-2022（年次スナップショット）━━━
+  snap("y2019", "2019-12",  80, 0, 0,  20, 0,  0,  0,  0,  0, 16.0,   0, "大学院時代"),
+  snap("y2020", "2020-12", 220, 0, 0,  60, 0, 20,  0,  0,  0, 16.5,   0, ""),
+  snap("y2021", "2021-03", 350, 0, 0, 100, 0,  0,  0,  0,  0, 17.0,   0, ""),
+  snap("y2022a","2022-08", 510, 0, 0, 270, 0,100,  3.8, 1.0, 0.02, 19.0, 0, ""),
+  snap("y2022b","2022-11", 600, 0, 0, 320, 0,100,  1.4, 2.8, 3.5, 19.5, 0, ""),
+
+  // ━━━ 2023 月次 ━━━
+  snap("s2301","2023-01", 700, 0, 0, 234, 0, 22, 16.2, 17.5, 0, 21.3, 0, "年初から60万円増"),
+  snap("s2302","2023-02", 740, 0, 0, 218, 0, 22, 13.8+2.4, 17.5, 0, 21.4, 0, "年初から40万円増"),
+  snap("s2303","2023-03", 800, 0, 0, 278,20, 20, 16.9, 17.5, 0, 20.6, 0, "年初から10万円増"),
+  snap("s2304","2023-04",1308, 0, 0, 278,20, 20, 19.1, 18.3, 0.6, 20.0, 0, ""),
+  snap("s2305","2023-05",1450, 0, 0, 300, 0,  0, 19.0, 18.4, 0.2, 19.9, 0, ""),
+  snap("s2306","2023-06",1835, 0, 0, 138,20, 30+0.4, 18.4, 18.4, 0, 21.2, 0, ""),
+  snap("s2307","2023-07",2050, 0, 0, 100,20, 30+0.4, 18.2, 18.4, 0, 21.9, 0, ""),
+  snap("s2308","2023-08",1850, 0, 0, 100,20, 20+0.4, 18.1, 18.4, 0, 21.1, 0, ""),
+  snap("s2309","2023-09",1850, 0, 0, 100,30, 20+0.4, 17.9, 18.4, 0, 20.9, 0, ""),
+  snap("s2310","2023-10",1018, 0, 0, 282,20, 90,   17.3, 18.1, 0, 20.3, 0, ""),
+  snap("s2311","2023-11",1070, 0, 0, 265,20,100+12, 18.0, 8.2, 1.1, 20.75, 0, "2000万大台達成・Amazon転職"),
+  snap("s2312","2023-12",2270, 0, 0, 150,20, 20, 16.6, 17.9, 0, 21.4, 1000, "史上最高値・年初比+1100万 年初一括現金込"),
+
+  // ━━━ 2024 月次 ━━━
+  snap("s2401","2024-01",1176, 5,  0, 234,20, 22, 17.5, 13.4, 1.0, 20.0, 400, ""),
+  snap("s2402","2024-02",1241,12,  0, 218,20, 22, 13.8+2.4,17.5, 0, 21.4, 1000, "前年比+1275万"),
+  snap("s2403","2024-03",1308,17,  0, 278,20, 20, 16.9, 17.5, 0, 20.6, 1000, "年初比10万増"),
+  snap("s2404","2024-04",1400,22,  0, 405,20, 30, 19.1, 18.4, 0.4, 20.1, 1000, "前年8月比+1700万"),
+  snap("s2405","2024-05",1450,28,  0, 400,20, 25, 19.0, 18.4, 0.2, 20.1, 1000, ""),
+  snap("s2406","2024-06",2400,34,  0, 115,20, 31, 12.9, 15.8, 0.8, 20.0, 1000, ""),
+  snap("s2407","2024-07",2550,40,  0, 145,20, 15, 11.0, 15.4, 0.8+2.0, 19.9, 1000, ""),
+  snap("s2408","2024-08",2580,50,  0, 145,20, 35, 10.7, 15.4, 0.8+2.0, 20.0, 1000, ""),
+  snap("s2409","2024-09",2690,55,  0, 150,20, 25, 10.6, 15.5, 0.8+2.0, 20.0, 1000, ""),
+  snap("s2410","2024-10",2830,65, 40, 170,20, 15, 10.2, 14.5, 1.9, 21.1, 1000, "史上最高値"),
+  snap("s2411","2024-11",2900,70, 40, 185,20, 35,  9.9, 14.6, 1.8, 20.9, 1000, "史上最高値・前年比+670万"),
+  snap("s2412","2024-12",3000,75, 40, 205,20, 20,  9.5, 13.6, 1.7, 21.8, 1000, "史上最高値・前年比+650万"),
+
+  // ━━━ 2025 月次 ━━━
+  snap("s2501","2025-01",3000,85, 40, 230,25, 20,  8.7,  7.6, 7.5, 21.0, 1000, "25年1月比+780万"),
+  snap("s2502","2025-02",3050,90, 40, 220,25, 40,  8.5,  7.5, 7.5, 21.3, 1000, ""),
+  snap("s2503","2025-03",3000,95, 40, 230,80, 30,  8.4,  7.5, 7.5, 21.4, 1000, "25年1月比+800万"),
 ];

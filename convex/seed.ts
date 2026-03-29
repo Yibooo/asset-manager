@@ -1,81 +1,45 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import bcrypt from "bcryptjs";
 
 const HISTORICAL_DATA = [
   {
     yearMonth: "2024-11",
-    rakuten: 2900,
-    corporateDC: 70,
-    rsu: 40,
-    yuchoBenri: 185,
-    yuchoYulin: 20,
-    mizuhoCash: 35,
-    wechat: 9.9,
-    alipay: 14.6,
-    icbc: 1.8,
-    yulinCNY: 0,
-    cnyJpyRate: 20.9,
+    rakuten: 2900, corporateDC: 70, rsu: 40,
+    yuchoBenri: 185, yuchoYulin: 20, mizuhoCash: 35,
+    wechat: 9.9, alipay: 14.6, icbc: 1.8,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.9,
     memo: "史上最高値更新・前年比+670万円",
   },
   {
     yearMonth: "2024-12",
-    rakuten: 3000,
-    corporateDC: 75,
-    rsu: 40,
-    yuchoBenri: 205,
-    yuchoYulin: 20,
-    mizuhoCash: 20,
-    wechat: 9.5,
-    alipay: 13.6,
-    icbc: 1.7,
-    yulinCNY: 0,
-    cnyJpyRate: 21.8,
+    rakuten: 3000, corporateDC: 75, rsu: 40,
+    yuchoBenri: 205, yuchoYulin: 20, mizuhoCash: 20,
+    wechat: 9.5, alipay: 13.6, icbc: 1.7,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.8,
     memo: "史上最高値更新・前年比+650万円",
   },
   {
     yearMonth: "2025-01",
-    rakuten: 3000,
-    corporateDC: 85,
-    rsu: 40,
-    yuchoBenri: 230,
-    yuchoYulin: 25,
-    mizuhoCash: 20,
-    wechat: 8.7,
-    alipay: 0,
-    icbc: 0,
-    yulinCNY: 23.8,
-    cnyJpyRate: 21.0,
+    rakuten: 3000, corporateDC: 85, rsu: 40,
+    yuchoBenri: 230, yuchoYulin: 25, mizuhoCash: 20,
+    wechat: 8.7, alipay: 0, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.0,
     memo: "前年比+780万円",
   },
   {
     yearMonth: "2025-02",
-    rakuten: 3050,
-    corporateDC: 90,
-    rsu: 40,
-    yuchoBenri: 220,
-    yuchoYulin: 25,
-    mizuhoCash: 40,
-    wechat: 8.5,
-    alipay: 0,
-    icbc: 0,
-    yulinCNY: 23.5,
-    cnyJpyRate: 21.3,
+    rakuten: 3050, corporateDC: 90, rsu: 40,
+    yuchoBenri: 220, yuchoYulin: 25, mizuhoCash: 40,
+    wechat: 8.5, alipay: 0, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.3,
     memo: "",
   },
   {
     yearMonth: "2025-03",
-    rakuten: 3000,
-    corporateDC: 95,
-    rsu: 40,
-    yuchoBenri: 230,
-    yuchoYulin: 80,
-    mizuhoCash: 30,
-    wechat: 8.4,
-    alipay: 0,
-    icbc: 0,
-    yulinCNY: 23.4,
-    cnyJpyRate: 21.4,
+    rakuten: 3000, corporateDC: 95, rsu: 40,
+    yuchoBenri: 230, yuchoYulin: 80, mizuhoCash: 30,
+    wechat: 8.4, alipay: 0, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.4,
     memo: "25年1月比+800万円",
   },
 ];
@@ -115,9 +79,9 @@ export const seedHistoricalData = mutation({
         data.yuchoYulin +
         data.mizuhoCash;
 
-      const totalCNY = data.wechat + data.alipay + data.icbc + data.yulinCNY;
-      const totalCNYinJPY = Math.round(totalCNY * data.cnyJpyRate);
-      const grandTotal = totalJPY + totalCNYinJPY;
+      const myCNY = data.wechat + data.alipay + data.icbc;
+      const totalCNYinJPY = Math.round(myCNY * data.cnyJpyRate);
+      const grandTotal = totalJPY + totalCNYinJPY + data.yulinPiggyJPY;
 
       await ctx.db.insert("assetSnapshots", {
         userId,
@@ -131,7 +95,7 @@ export const seedHistoricalData = mutation({
         wechat: data.wechat,
         alipay: data.alipay,
         icbc: data.icbc,
-        yulinCNY: data.yulinCNY,
+        yulinPiggyJPY: data.yulinPiggyJPY,
         cnyJpyRate: data.cnyJpyRate,
         totalJPY,
         totalCNYinJPY,

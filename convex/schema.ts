@@ -18,7 +18,7 @@ export default defineSchema({
 
   assetSnapshots: defineTable({
     userId: v.id("users"),
-    yearMonth: v.string(), // "2026-03"
+    yearMonth: v.string(),
     // 日本円資産（万円）
     rakuten: v.number(),
     corporateDC: v.number(),
@@ -30,12 +30,13 @@ export default defineSchema({
     yuchoBenri: v.number(),
     yuchoYulin: v.number(),
     mizuhoCash: v.number(),
-    // 人民元資産（万元）
+    // 自分の人民元資産（万元）
     wechat: v.number(),
     alipay: v.number(),
     icbc: v.number(),
-    yulinCNY: v.number(),
-    cnyJpyRate: v.number(), // 1元 = X円
+    cnyJpyRate: v.number(),
+    // Yulin猪猪資産（万円・JPY換算済）
+    yulinPiggyJPY: v.number(),
     // 集計（万円）
     totalJPY: v.number(),
     totalCNYinJPY: v.number(),

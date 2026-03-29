@@ -3,13 +3,38 @@
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuth } from "@/lib/auth";
-import { formatManYen, getDiffLabel, formatYearMonth, ACCOUNT_LABELS, ACCOUNT_COLORS, JPY_ACCOUNTS, CNY_ACCOUNTS } from "@/lib/utils";
+import {
+  formatManYen, getDiffLabel, formatYearMonth,
+  ACCOUNT_LABELS, ACCOUNT_COLORS, JPY_ACCOUNTS, CNY_ACCOUNTS,
+  CURRENCY_KEYS, RISK_KEYS,
+} from "@/lib/utils";
 import Link from "next/link";
 import { useState } from "react";
 import {
   PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
+  BarChart, Bar, XAxis, YAxis, CartesianGrid,
 } from "recharts";
+
+type ChartMode = "通貨別" | "リスク別";
+
+function buildCurrencyData(snapshots: any[]) {
+  return snapshots.map((s) => ({
+    month: s.yearMonth.slice(2).replace("-", "/"),
+    "JPY現金・預金": s.yuchoBenri + s.yuchoYulin + s.mizuhoCash,
+    "JPY投資（楽天/DC）": s.rakuten + s.corporateDC,
+    "USD（RSU）": s.rsu,
+    "CNY自分": s.totalCNYinJPY,
+    "妻の資産（Yulin）": s.yulinPiggyJPY ?? 0,
+  }));
+}
+
+function buildRiskData(snapshots: any[]) {
+  return snapshots.map((s) => ({
+    month: s.yearMonth.slice(2).replace("-", "/"),
+    "低リスク（現金・預金）": s.yuchoBenri + s.yuchoYulin + s.mizuhoCash + s.totalCNYinJPY,
+    "中リスク（株式・投資・年金）": s.rakuten + s.corporateDC + s.rsu + (s.yulinPiggyJPY ?? 0),
+  }));
+}
 
 export default function DashboardPage() {
   const { token } = useAuth();
@@ -18,12 +43,13 @@ export default function DashboardPage() {
   const seedMutation = useMutation(api.seed.seedHistoricalData);
   const [seeding, setSeeding] = useState(false);
   const [seedDone, setSeedDone] = useState(false);
+  const [chartMode, setChartMode] = useState<ChartMode>("通貨別");
 
   const handleSeed = async () => {
     if (!token) return;
     setSeeding(true);
     try {
-      const result = await seedMutation({ token });
+      await seedMutation({ token });
       setSeedDone(true);
     } catch {}
     setSeeding(false);
@@ -51,7 +77,7 @@ export default function DashboardPage() {
             disabled={seeding || seedDone}
             className="inline-block bg-gray-100 text-gray-700 px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
           >
-            {seeding ? "インポート中..." : seedDone ? "完了！再読込してください" : "過去データをインポート（2024/11〜2025/03）"}
+            {seeding ? "インポート中..." : seedDone ? "完了！再読込してください" : "過去データをインポート（2019〜2025/03）"}
           </button>
         </div>
       </div>
@@ -63,12 +89,12 @@ export default function DashboardPage() {
   const diffJPY = prevMonth ? latest.totalJPY - prevMonth.totalJPY : null;
 
   const recentSnapshots = allSnapshots.slice(-12);
-  const chartData = recentSnapshots.map((s) => ({
-    month: s.yearMonth.slice(2).replace("-", "/"),
-    総資産: s.grandTotal,
-    日本円: s.totalJPY,
-    人民元: s.totalCNYinJPY,
-  }));
+  const currencyData = buildCurrencyData(recentSnapshots);
+  const riskData = buildRiskData(recentSnapshots);
+  const chartData = chartMode === "通貨別" ? currencyData : riskData;
+  const keys = chartMode === "通貨別" ? CURRENCY_KEYS : RISK_KEYS;
+
+  const yulinPiggy = (latest as any).yulinPiggyJPY ?? 0;
 
   const pieData = [
     ...JPY_ACCOUNTS.map((key) => ({
@@ -77,10 +103,15 @@ export default function DashboardPage() {
       color: ACCOUNT_COLORS[key],
     })),
     {
-      name: "人民元資産",
+      name: "本人CNY資産",
       value: latest.totalCNYinJPY,
       color: "#f43f5e",
     },
+    ...(yulinPiggy > 0 ? [{
+      name: "妻の資産",
+      value: yulinPiggy,
+      color: "#a78bfa",
+    }] : []),
   ].filter((d) => d.value > 0);
 
   return (
@@ -116,7 +147,7 @@ export default function DashboardPage() {
         </div>
         <div className="space-y-3">
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <p className="text-xs text-gray-500 font-medium">日本円資産</p>
+            <p className="text-xs text-gray-500 font-medium">本人日本円資産</p>
             <p className="text-xl font-bold text-gray-900 mt-1">{formatManYen(latest.totalJPY)}</p>
             {diffJPY !== null && (
               <p className={`text-xs mt-1 ${diffJPY >= 0 ? "text-green-600" : "text-red-500"}`}>
@@ -125,19 +156,42 @@ export default function DashboardPage() {
             )}
           </div>
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <p className="text-xs text-gray-500 font-medium">人民元資産（円換算）</p>
+            <p className="text-xs text-gray-500 font-medium">本人CNY資産（円換算）</p>
             <p className="text-xl font-bold text-gray-900 mt-1">{formatManYen(latest.totalCNYinJPY)}</p>
             <p className="text-xs text-gray-400 mt-1">レート: 1元 = {latest.cnyJpyRate}円</p>
           </div>
+          {yulinPiggy > 0 && (
+            <div className="bg-purple-50 rounded-2xl p-4 shadow-sm border border-purple-100">
+              <p className="text-xs text-purple-600 font-medium">妻の資産（Yulin）</p>
+              <p className="text-xl font-bold text-gray-900 mt-1">{formatManYen(yulinPiggy)}</p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* 推移グラフ */}
-      {chartData.length > 1 && (
+      {/* 積み上げバーチャート（通貨別/リスク別トグル） */}
+      {recentSnapshots.length > 1 && (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <h2 className="text-base font-semibold text-gray-800 mb-4">資産推移（直近12ヶ月）</h2>
-          <ResponsiveContainer width="100%" height={220}>
-            <LineChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-800">資産推移（直近12ヶ月）</h2>
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
+              {(["通貨別", "リスク別"] as ChartMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setChartMode(mode)}
+                  className={`px-3 py-1.5 font-medium transition-colors ${
+                    chartMode === mode
+                      ? "bg-blue-600 text-white"
+                      : "bg-white text-gray-600 hover:bg-gray-50"
+                  }`}
+                >
+                  {mode}
+                </button>
+              ))}
+            </div>
+          </div>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={chartData} margin={{ top: 5, right: 10, left: 10, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="month" tick={{ fontSize: 11 }} tickLine={false} />
               <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} tickFormatter={(v) => `${v}万`} />
@@ -145,11 +199,11 @@ export default function DashboardPage() {
                 formatter={(v: number, name: string) => [`${v.toLocaleString()}万円`, name]}
                 contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e5e7eb" }}
               />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
-              <Line type="monotone" dataKey="総資産" stroke="#3b82f6" strokeWidth={2.5} dot={{ r: 3 }} activeDot={{ r: 5 }} />
-              <Line type="monotone" dataKey="日本円" stroke="#10b981" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
-              <Line type="monotone" dataKey="人民元" stroke="#f43f5e" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
-            </LineChart>
+              <Legend wrapperStyle={{ fontSize: 11 }} />
+              {keys.map(({ key, color }) => (
+                <Bar key={key} dataKey={key} stackId="a" fill={color} />
+              ))}
+            </BarChart>
           </ResponsiveContainer>
         </div>
       )}
@@ -211,12 +265,12 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 人民元資産 */}
+      {/* 人民元資産（本人分） */}
       <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
         <h2 className="text-base font-semibold text-gray-800 mb-4">
-          人民元資産（1元 = {latest.cnyJpyRate}円）
+          本人CNY資産（1元 = {latest.cnyJpyRate}円）
         </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {CNY_ACCOUNTS.map((key) => {
             const value = latest[key] as number;
             return (
