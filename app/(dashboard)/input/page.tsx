@@ -119,7 +119,7 @@ export default function InputPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) return;
+    // if (!token) return; // 【AUTH-BYPASS】
     setLoading(true);
     setError("");
 
