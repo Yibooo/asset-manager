@@ -16,10 +16,38 @@ import {
 } from "recharts";
 
 type ChartMode = "通貨別" | "リスク別";
+type PeriodMode = "月別" | "半期別" | "年別";
 
-function buildCurrencyData(snapshots: any[]) {
+// 期間モードに応じてスナップショットを集約（各期間の最終月の値を使用）
+function aggregateByPeriod(snapshots: any[], period: PeriodMode): Array<any & { label: string }> {
+  if (period === "月別") {
+    return snapshots.slice(-12).map((s) => ({
+      ...s,
+      label: s.yearMonth.slice(2).replace("-", "/"),
+    }));
+  }
+  if (period === "年別") {
+    const map: Record<string, any> = {};
+    for (const s of snapshots) {
+      const year = s.yearMonth.split("-")[0];
+      map[year] = { ...s, label: year };
+    }
+    return Object.values(map);
+  }
+  // 半期別
+  const map: Record<string, any> = {};
+  for (const s of snapshots) {
+    const [year, month] = s.yearMonth.split("-");
+    const half = parseInt(month) <= 6 ? "H1" : "H2";
+    const key = `${year}-${half}`;
+    map[key] = { ...s, label: `${year.slice(2)}/${half}` };
+  }
+  return Object.values(map);
+}
+
+function buildCurrencyData(snapshots: Array<any & { label: string }>) {
   return snapshots.map((s) => ({
-    month: s.yearMonth.slice(2).replace("-", "/"),
+    month: s.label,
     "JPY現金・預金": s.yuchoBenri + s.yuchoYulin + s.mizuhoCash,
     "JPY投資（楽天/DC）": s.rakuten + s.corporateDC,
     "USD（RSU）": s.rsu,
@@ -28,9 +56,9 @@ function buildCurrencyData(snapshots: any[]) {
   }));
 }
 
-function buildRiskData(snapshots: any[]) {
+function buildRiskData(snapshots: Array<any & { label: string }>) {
   return snapshots.map((s) => ({
-    month: s.yearMonth.slice(2).replace("-", "/"),
+    month: s.label,
     "低リスク（現金・預金）": s.yuchoBenri + s.yuchoYulin + s.mizuhoCash + s.totalCNYinJPY,
     "中リスク（株式・投資・年金）": s.rakuten + s.corporateDC + s.rsu + (s.yulinPiggyJPY ?? 0),
   }));
@@ -44,6 +72,7 @@ export default function DashboardPage() {
   const [seeding, setSeeding] = useState(false);
   const [seedDone, setSeedDone] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("通貨別");
+  const [periodMode, setPeriodMode] = useState<PeriodMode>("月別");
 
   const handleSeed = async () => {
     // 【AUTH-BYPASS】token不要
@@ -88,9 +117,9 @@ export default function DashboardPage() {
   const diff = prevMonth ? latest.grandTotal - prevMonth.grandTotal : null;
   const diffJPY = prevMonth ? latest.totalJPY - prevMonth.totalJPY : null;
 
-  const recentSnapshots = allSnapshots.slice(-12);
-  const currencyData = buildCurrencyData(recentSnapshots);
-  const riskData = buildRiskData(recentSnapshots);
+  const periodSnapshots = aggregateByPeriod(allSnapshots, periodMode);
+  const currencyData = buildCurrencyData(periodSnapshots);
+  const riskData = buildRiskData(periodSnapshots);
   const chartData = chartMode === "通貨別" ? currencyData : riskData;
   const keys = chartMode === "通貨別" ? CURRENCY_KEYS : RISK_KEYS;
 
@@ -170,24 +199,43 @@ export default function DashboardPage() {
       </div>
 
       {/* 積み上げバーチャート（通貨別/リスク別トグル） */}
-      {recentSnapshots.length > 1 && (
+      {periodSnapshots.length > 1 && (
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-base font-semibold text-gray-800">資産推移（直近12ヶ月）</h2>
-            <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
-              {(["通貨別", "リスク別"] as ChartMode[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setChartMode(mode)}
-                  className={`px-3 py-1.5 font-medium transition-colors ${
-                    chartMode === mode
-                      ? "bg-blue-600 text-white"
-                      : "bg-white text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  {mode}
-                </button>
-              ))}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+            <h2 className="text-base font-semibold text-gray-800">資産推移</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* 期間トグル */}
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
+                {(["月別", "半期別", "年別"] as PeriodMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setPeriodMode(mode)}
+                    className={`px-3 py-1.5 font-medium transition-colors ${
+                      periodMode === mode
+                        ? "bg-gray-700 text-white"
+                        : "bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+              {/* 通貨別/リスク別トグル */}
+              <div className="flex rounded-lg overflow-hidden border border-gray-200 text-xs">
+                {(["通貨別", "リスク別"] as ChartMode[]).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setChartMode(mode)}
+                    className={`px-3 py-1.5 font-medium transition-colors ${
+                      chartMode === mode
+                        ? "bg-blue-600 text-white"
+                        : "bg-white text-gray-600 hover:bg-gray-50"
+                    }`}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={240}>
