@@ -40,16 +40,16 @@ export default function DashboardPage() {
   const { token } = useAuth();
   const latest = useQuery(api.assets.getLatestSnapshot, { token: token ?? undefined });
   const allSnapshots = useQuery(api.assets.getSnapshots, { token: token ?? undefined });
-  const seedMutation = useMutation(api.seed.seedHistoricalData);
+  const seedMutation = useMutation(api.seed.setupAndImport); // 【AUTH-BYPASS】認証不要版
   const [seeding, setSeeding] = useState(false);
   const [seedDone, setSeedDone] = useState(false);
   const [chartMode, setChartMode] = useState<ChartMode>("通貨別");
 
   const handleSeed = async () => {
-    if (!token) return;
+    // 【AUTH-BYPASS】token不要
     setSeeding(true);
     try {
-      await seedMutation({ token });
+      await seedMutation({});
       setSeedDone(true);
     } catch {}
     setSeeding(false);

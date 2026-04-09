@@ -2,23 +2,27 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { Id } from "./_generated/dataModel";
 
-async function getUserIdFromToken(
-  ctx: { db: { query: Function } },
-  token: string
-): Promise<Id<"users">> {
-  const session = await (ctx.db as any)
-    .query("sessions")
-    .withIndex("by_token", (q: any) => q.eq("token", token))
-    .unique();
-  if (!session || session.expiresAt < Date.now()) {
-    throw new Error("ログインが必要です");
+// 【AUTH-BYPASS】トークンなしの場合は最初のユーザーを使う
+async function resolveUserId(
+  ctx: { db: any },
+  token?: string
+): Promise<Id<"users"> | null> {
+  if (token) {
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_token", (q: any) => q.eq("token", token))
+      .unique();
+    if (!session || session.expiresAt < Date.now()) return null;
+    return session.userId;
   }
-  return session.userId;
+  // 認証バイパス中：DBの最初のユーザーを使用
+  const firstUser = await ctx.db.query("users").first();
+  return firstUser?._id ?? null;
 }
 
 export const upsertSnapshot = mutation({
   args: {
-    token: v.string(),
+    token: v.optional(v.string()), // 【AUTH-BYPASS】optional に変更
     yearMonth: v.string(),
     rakuten: v.number(),
     corporateDC: v.number(),
@@ -38,7 +42,8 @@ export const upsertSnapshot = mutation({
     memo: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = await getUserIdFromToken(ctx, args.token);
+    const userId = await resolveUserId(ctx, args.token);
+    if (!userId) throw new Error("ユーザーが見つかりません");
 
     const totalJPY =
       args.rakuten + args.corporateDC + args.rsu +
@@ -92,44 +97,37 @@ export const upsertSnapshot = mutation({
 export const getSnapshots = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) return [];
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("token", args.token!))
-      .unique();
-    if (!session || session.expiresAt < Date.now()) return [];
+    const userId = await resolveUserId(ctx, args.token);
+    if (!userId) return [];
 
     const snapshots = await ctx.db
       .query("assetSnapshots")
-      .withIndex("by_user", (q) => q.eq("userId", session.userId))
+      .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
-    return snapshots.sort((a, b) => a.yearMonth.localeCompare(b.yearMonth));
+    return snapshots.sort((a: any, b: any) => a.yearMonth.localeCompare(b.yearMonth));
   },
 });
 
 export const getLatestSnapshot = query({
   args: { token: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    if (!args.token) return null;
-    const session = await ctx.db
-      .query("sessions")
-      .withIndex("by_token", (q) => q.eq("token", args.token!))
-      .unique();
-    if (!session || session.expiresAt < Date.now()) return null;
+    const userId = await resolveUserId(ctx, args.token);
+    if (!userId) return null;
 
     const snapshots = await ctx.db
       .query("assetSnapshots")
-      .withIndex("by_user", (q) => q.eq("userId", session.userId))
+      .withIndex("by_user", (q: any) => q.eq("userId", userId))
       .collect();
     if (snapshots.length === 0) return null;
-    return snapshots.sort((a, b) => b.yearMonth.localeCompare(a.yearMonth))[0];
+    return snapshots.sort((a: any, b: any) => b.yearMonth.localeCompare(a.yearMonth))[0];
   },
 });
 
 export const deleteSnapshot = mutation({
-  args: { token: v.string(), snapshotId: v.id("assetSnapshots") },
+  args: { token: v.optional(v.string()), snapshotId: v.id("assetSnapshots") },
   handler: async (ctx, args) => {
-    const userId = await getUserIdFromToken(ctx, args.token);
+    const userId = await resolveUserId(ctx, args.token);
+    if (!userId) throw new Error("ユーザーが見つかりません");
     const snapshot = await ctx.db.get(args.snapshotId);
     if (!snapshot || snapshot.userId !== userId) throw new Error("権限がありません");
     await ctx.db.delete(args.snapshotId);
