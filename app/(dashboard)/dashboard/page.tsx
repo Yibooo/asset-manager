@@ -21,7 +21,8 @@ type PeriodMode = "月別" | "半期別" | "年別";
 // 期間モードに応じてスナップショットを集約（各期間の最終月の値を使用）
 function aggregateByPeriod(snapshots: any[], period: PeriodMode): Array<any & { label: string }> {
   if (period === "月別") {
-    return snapshots.slice(-12).map((s) => ({
+    // 全期間表示
+    return snapshots.map((s) => ({
       ...s,
       label: s.yearMonth.slice(2).replace("-", "/"),
     }));
@@ -32,7 +33,7 @@ function aggregateByPeriod(snapshots: any[], period: PeriodMode): Array<any & { 
       const year = s.yearMonth.split("-")[0];
       map[year] = { ...s, label: year };
     }
-    return Object.values(map);
+    return Object.keys(map).sort().map((k) => map[k]);
   }
   // 半期別
   const map: Record<string, any> = {};
@@ -42,7 +43,7 @@ function aggregateByPeriod(snapshots: any[], period: PeriodMode): Array<any & { 
     const key = `${year}-${half}`;
     map[key] = { ...s, label: `${year.slice(2)}/${half}` };
   }
-  return Object.values(map);
+  return Object.keys(map).sort().map((k) => map[k]);
 }
 
 function buildCurrencyData(snapshots: Array<any & { label: string }>) {
