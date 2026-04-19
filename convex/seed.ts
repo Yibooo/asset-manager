@@ -20,7 +20,7 @@ const HISTORICAL_DATA = [
     yuchoBenri: 350, yuchoYulin: 0, mizuhoCash: 100,
     wechat: 0, alipay: 0, icbc: 0,
     yulinPiggyJPY: 0, cnyJpyRate: 21.5,
-    // totalJPY=450, CNY=0, grand=450 ✓
+    // totalJPY=450, CNY=0, grand=450
     memo: "断面450万（その他100万含む）",
   },
 
@@ -29,34 +29,35 @@ const HISTORICAL_DATA = [
     yearMonth: "2022-08",
     rakuten: 510, corporateDC: 0, rsu: 0,
     yuchoBenri: 270, yuchoYulin: 0, mizuhoCash: 100,
-    wechat: 5.0, alipay: 0, icbc: 0,
+    wechat: 3.8, alipay: 1.0, icbc: 0.02,
     yulinPiggyJPY: 0, cnyJpyRate: 24.0,
-    // totalJPY=880, CNY=120, grand=1000 ✓
+    // totalJPY=880, CNY≈115, grand≈995
     memo: "断面1000万",
   },
   {
     yearMonth: "2022-11",
     rakuten: 600, corporateDC: 0, rsu: 0,
     yuchoBenri: 320, yuchoYulin: 0, mizuhoCash: 100,
-    wechat: 7.7, alipay: 0, icbc: 0,
+    wechat: 1.4, alipay: 2.8, icbc: 3.5,
     yulinPiggyJPY: 0, cnyJpyRate: 16.88,
-    // totalJPY=1020, CNY=130, grand=1150 ✓
+    // totalJPY=1020, CNY≈130, grand≈1150
     memo: "断面1150万",
   },
 
   // -------- 2023 --------
+  // 2023/4/1断面: Wealth700+ゆうちょ212+SMBC98=1010万, CNY9万元=190万(rate21.11), grand≈1200
   {
     yearMonth: "2023-04",
     rakuten: 700, corporateDC: 0, rsu: 0,
     yuchoBenri: 212, yuchoYulin: 0, mizuhoCash: 98,
-    wechat: 9.0, alipay: 0, icbc: 0,
+    wechat: 3.7, alipay: 4.4, icbc: 0.9,
     yulinPiggyJPY: 0, cnyJpyRate: 21.11,
-    // totalJPY=1010, CNY=190, grand=1200 ✓
+    // totalJPY=1010, CNY≈190, grand≈1200 ✓
     memo: "断面1200万",
   },
+  // 2023/5/15断面: 日本円合計1200万（内訳不明のため一括）, CNY12.5万元=250万, grand=1450
   {
     yearMonth: "2023-05",
-    // 内訳不明のため推計: 日本円合計1200万をrakutenに一括
     rakuten: 1200, corporateDC: 0, rsu: 0,
     yuchoBenri: 0, yuchoYulin: 0, mizuhoCash: 0,
     wechat: 12.5, alipay: 0, icbc: 0,
@@ -64,169 +65,187 @@ const HISTORICAL_DATA = [
     // totalJPY=1200, CNY=250, grand=1450 ✓
     memo: "断面1450万（内訳推計）",
   },
+  // 2023/7/14断面: WN900+ゆうちょ250+SMBC90=1240万, CNY18.5万元=370万(rate20.0), grand=1610
   {
     yearMonth: "2023-07",
     rakuten: 900, corporateDC: 0, rsu: 0,
     yuchoBenri: 250, yuchoYulin: 0, mizuhoCash: 90,
-    wechat: 18.5, alipay: 0, icbc: 0,
+    wechat: 12.0, alipay: 4.5, icbc: 2.0,
     yulinPiggyJPY: 0, cnyJpyRate: 20.0,
     // totalJPY=1240, CNY=370, grand=1610 ✓
     memo: "断面1610万",
   },
+  // 2023/8/14断面: WN960+ゆうちょ230+SMBC90=1280万, CNY21.0万元=420万(rate20.0), grand=1700
   {
     yearMonth: "2023-08",
     rakuten: 960, corporateDC: 0, rsu: 0,
     yuchoBenri: 230, yuchoYulin: 0, mizuhoCash: 90,
-    wechat: 21.0, alipay: 0, icbc: 0,
+    wechat: 14.0, alipay: 6.4, icbc: 0.6,
     yulinPiggyJPY: 0, cnyJpyRate: 20.0,
     // totalJPY=1280, CNY=420, grand=1700 ✓
     memo: "断面1700万",
   },
+  // 2023/9/13断面: WN1000+ゆうちょ212+SMBC90=1302万, CNY23.4万元=468万(rate20.0), grand=1770
   {
     yearMonth: "2023-09",
     rakuten: 1000, corporateDC: 0, rsu: 0,
     yuchoBenri: 212, yuchoYulin: 0, mizuhoCash: 90,
-    wechat: 23.4, alipay: 0, icbc: 0,
+    wechat: 13.8, alipay: 6.1, icbc: 3.5,
     yulinPiggyJPY: 0, cnyJpyRate: 20.0,
     // totalJPY=1302, CNY=468, grand=1770 ✓
     memo: "断面1770万",
   },
+  // 2023/10/13断面: WN1018+ゆうちょ282+SMBC90=1390万, CNY25.0万元=500万(rate20.0), grand=1890
   {
     yearMonth: "2023-10",
     rakuten: 1018, corporateDC: 0, rsu: 0,
     yuchoBenri: 282, yuchoYulin: 0, mizuhoCash: 90,
-    wechat: 25.0, alipay: 0, icbc: 0,
+    wechat: 15.5, alipay: 5.8, icbc: 3.6,
     yulinPiggyJPY: 0, cnyJpyRate: 20.0,
     // totalJPY=1390, CNY=500, grand=1890 ✓
     memo: "断面1890万",
   },
+  // 2023/11/14断面: WN1070+ゆうちょ265+SMBC100+みずほ12=1447万, CNY27.3万元≈566万(rate20.75), grand≈2013
   {
     yearMonth: "2023-11",
     rakuten: 1070, corporateDC: 0, rsu: 0,
     yuchoBenri: 265, yuchoYulin: 0, mizuhoCash: 112,
-    wechat: 27.3, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 0, cnyJpyRate: 20.26,
-    // totalJPY=1447, CNY=553, grand=2000 ✓
-    memo: "大台2000万達成",
+    wechat: 18.0, alipay: 8.2, icbc: 1.1,
+    yulinPiggyJPY: 0, cnyJpyRate: 20.75,
+    // totalJPY=1447, CNY≈566, grand≈2013（2000万大台）✓
+    memo: "大台2000万達成・Amazon転職",
   },
+  // 2023/12/14断面: WN1128+ゆうちょ252+SMBC90+みずほ22=1492万, CNY29.3万元=586万(rate20.0), grand=2078
   {
     yearMonth: "2023-12",
     rakuten: 1128, corporateDC: 0, rsu: 0,
-    yuchoBenri: 272, yuchoYulin: 0, mizuhoCash: 112,
-    wechat: 29.3, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1422, cnyJpyRate: 19.32,
-    // totalJPY=1512, CNY=566, piggy=1422, grand=3500 ✓
-    memo: "猪猪15w元換算（1422万）・断面3500万",
+    yuchoBenri: 252, yuchoYulin: 0, mizuhoCash: 112,
+    wechat: 17.3, alipay: 11.0, icbc: 1.0,
+    yulinPiggyJPY: 0, cnyJpyRate: 20.0,
+    // totalJPY=1492, CNY=586, grand=2078 ✓
+    memo: "断面2078万",
   },
 
   // -------- 2024 --------
+  // 2024/1/12断面: WN1176+ゆうちょ234+SMBC90+みずほ22=1522万, CNY32.0万元=640万(rate20.0), piggy=400, grand=2562
   {
     yearMonth: "2024-01",
-    rakuten: 2320, corporateDC: 5, rsu: 0,
-    yuchoBenri: 205, yuchoYulin: 0, mizuhoCash: 10,
-    wechat: 33.7, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 21.36,
-    // totalJPY=2540, CNY=720, grand=4260 ✓
-    memo: "断面4260万",
+    rakuten: 1176, corporateDC: 0, rsu: 0,
+    yuchoBenri: 234, yuchoYulin: 0, mizuhoCash: 112,
+    wechat: 17.5, alipay: 13.4, icbc: 1.0,
+    yulinPiggyJPY: 400, cnyJpyRate: 20.0,
+    // totalJPY=1522, CNY=640, piggy=400, grand=2562 ✓
+    memo: "断面2562万・前年8月比+1182万",
   },
+  // 2024/2/10断面: WN1241+ゆうちょ218+SMBC90+みずほ22=1571万, CNY34.2万元=684万(rate20.0), piggy=1000, grand=3255
   {
     yearMonth: "2024-02",
-    rakuten: 2330, corporateDC: 12, rsu: 0,
-    yuchoBenri: 145, yuchoYulin: 0, mizuhoCash: 33,
-    wechat: 33.7, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 21.36,
-    // totalJPY=2520, CNY=720, grand=4240 ✓
-    memo: "断面4240万",
+    rakuten: 1241, corporateDC: 0, rsu: 0,
+    yuchoBenri: 218, yuchoYulin: 0, mizuhoCash: 112,
+    wechat: 17.4, alipay: 15.8, icbc: 1.0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
+    // totalJPY=1571, CNY=684, piggy=1000, grand=3255 ✓
+    memo: "断面3255万・前年比+1275万",
   },
+  // 2024/3/9断面: WN1308+ゆうちょ278+SMBC100+みずほ20=1706万, CNY38.0万元=760万(rate20.0), piggy=1000, grand=3466
   {
     yearMonth: "2024-03",
-    rakuten: 2290, corporateDC: 17, rsu: 0,
-    yuchoBenri: 160, yuchoYulin: 0, mizuhoCash: 30,
-    wechat: 34.4, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.73,
-    // totalJPY=2497, CNY=713, grand=4210 ✓
-    memo: "断面4210万",
+    rakuten: 1308, corporateDC: 0, rsu: 0,
+    yuchoBenri: 278, yuchoYulin: 0, mizuhoCash: 120,
+    wechat: 19.1, alipay: 18.3, icbc: 0.6,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
+    // totalJPY=1706, CNY=760, piggy=1000, grand=3466
+    memo: "断面3406万",
   },
+  // 2024/4/10断面: WN1400+ゆうちょ405+SMBC100+みずほ30=1935万, CNY37.9万元=761万(rate20.1), piggy=1000, grand=3696
   {
     yearMonth: "2024-04",
-    rakuten: 2150, corporateDC: 22, rsu: 0,
-    yuchoBenri: 100, yuchoYulin: 0, mizuhoCash: 15,
-    wechat: 29.5, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.10,
-    // totalJPY=2287, CNY=593, grand=3880 ✓
-    memo: "断面3880万",
+    rakuten: 1400, corporateDC: 0, rsu: 0,
+    yuchoBenri: 405, yuchoYulin: 0, mizuhoCash: 130,
+    wechat: 19.1, alipay: 18.4, icbc: 0.4,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.1,
+    // totalJPY=1935, CNY=761, piggy=1000, grand=3696 ✓
+    memo: "断面3695万・前年8月比+1700万",
   },
+  // 2024/5/10断面: WN1450+ゆうちょ400+SMBC100+みずほ30=1980万, CNY37.6万元=752万(rate20.0), piggy=1000, grand=3732
   {
     yearMonth: "2024-05",
-    rakuten: 2270, corporateDC: 28, rsu: 0,
-    yuchoBenri: 130, yuchoYulin: 0, mizuhoCash: 25,
-    wechat: 29.4, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 19.97,
-    // totalJPY=2453, CNY=587, grand=4040 ✓
-    memo: "断面4040万",
+    rakuten: 1450, corporateDC: 0, rsu: 0,
+    yuchoBenri: 400, yuchoYulin: 0, mizuhoCash: 130,
+    wechat: 19.0, alipay: 18.4, icbc: 0.2,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
+    // totalJPY=1980, CNY=752, piggy=1000, grand=3732 ✓
+    memo: "断面3730万",
   },
+  // 2024/6/10断面: 楽天1835+ゆうちょ138+みずほ30=2003万, CNY36.8万元=780万(rate21.2), piggy=1000, grand=3783
   {
     yearMonth: "2024-06",
-    rakuten: 2400, corporateDC: 34, rsu: 0,
-    yuchoBenri: 135, yuchoYulin: 0, mizuhoCash: 31,
-    wechat: 29.5, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
-    // totalJPY=2600, CNY=590, grand=4190 ✓
-    memo: "断面4190万",
+    rakuten: 1835, corporateDC: 0, rsu: 0,
+    yuchoBenri: 138, yuchoYulin: 0, mizuhoCash: 30,
+    wechat: 18.4, alipay: 18.4, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.2,
+    // totalJPY=2003, CNY=780, piggy=1000, grand=3783 ✓
+    memo: "断面3780万",
   },
+  // 2024/7/10断面: 楽天2050+ゆうちょ100+みずほ30=2180万, CNY36.6万元=801万(rate21.9), piggy=1000, grand=3981
   {
     yearMonth: "2024-07",
-    rakuten: 2550, corporateDC: 40, rsu: 0,
-    yuchoBenri: 165, yuchoYulin: 0, mizuhoCash: 15,
-    wechat: 29.2, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 19.86,
-    // totalJPY=2770, CNY=580, grand=4350 ✓
-    memo: "断面4350万",
+    rakuten: 2050, corporateDC: 0, rsu: 0,
+    yuchoBenri: 100, yuchoYulin: 0, mizuhoCash: 30,
+    wechat: 18.2, alipay: 18.4, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.9,
+    // totalJPY=2180, CNY=801, piggy=1000, grand=3981 ✓
+    memo: "断面3980万",
   },
+  // 2024/8/10断面: 楽天1850+ゆうちょ100+みずほ20=1970万, CNY36.5万元=771万(rate21.1), piggy=1000, grand=3741
   {
     yearMonth: "2024-08",
-    rakuten: 2580, corporateDC: 50, rsu: 0,
-    yuchoBenri: 165, yuchoYulin: 0, mizuhoCash: 35,
-    wechat: 29.0, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
-    // totalJPY=2830, CNY=580, grand=4410 ✓
-    memo: "断面4410万",
+    rakuten: 1850, corporateDC: 0, rsu: 0,
+    yuchoBenri: 100, yuchoYulin: 0, mizuhoCash: 20,
+    wechat: 18.1, alipay: 18.4, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.1,
+    // totalJPY=1970, CNY=771, piggy=1000, grand=3741 ✓
+    memo: "断面3740万",
   },
+  // 2024/9/10断面: 楽天1850+ゆうちょ100+Yulinゆうちょ30+みずほ20=2000万, CNY36.3万元=759万(rate20.9), piggy=1000, grand=3759
   {
     yearMonth: "2024-09",
-    rakuten: 2690, corporateDC: 55, rsu: 0,
-    yuchoBenri: 170, yuchoYulin: 0, mizuhoCash: 25,
-    wechat: 29.0, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.0,
-    // totalJPY=2940, CNY=580, grand=4520 ✓
-    memo: "断面4520万",
+    rakuten: 1850, corporateDC: 0, rsu: 0,
+    yuchoBenri: 100, yuchoYulin: 30, mizuhoCash: 20,
+    wechat: 17.9, alipay: 18.4, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.9,
+    // totalJPY=2000, CNY=759, piggy=1000, grand=3759 ✓
+    memo: "断面3760万",
   },
+  // 2024/10/15断面: 楽天2040+ゆうちょ100+Yulinゆうちょ20+みずほ20=2180万, CNY35.4万元=719万(rate20.3), piggy=1000, grand=3899
   {
     yearMonth: "2024-10",
-    rakuten: 2830, corporateDC: 65, rsu: 0,
-    yuchoBenri: 190, yuchoYulin: 0, mizuhoCash: 20,
-    wechat: 26.6, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.86,
-    // totalJPY=3105, CNY=555, grand=4660 ✓
-    memo: "断面4660万",
+    rakuten: 2040, corporateDC: 0, rsu: 0,
+    yuchoBenri: 100, yuchoYulin: 20, mizuhoCash: 20,
+    wechat: 17.3, alipay: 18.1, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 20.3,
+    // totalJPY=2180, CNY=719, piggy=1000, grand=3899 ✓
+    memo: "断面3900万",
   },
+  // 2024/11/27断面: 楽天2152+ゆうちょ208+Yulinゆうちょ20+みずほ20=2400万, CNY34.8万元=731万(rate21.0), piggy=1000, grand=4131
   {
     yearMonth: "2024-11",
-    rakuten: 2900, corporateDC: 110, rsu: 0,
-    yuchoBenri: 205, yuchoYulin: 0, mizuhoCash: 35,
-    wechat: 26.3, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 20.91,
-    // totalJPY=3250, CNY=550, grand=4800 ✓
-    memo: "最高値更新・断面4800万",
+    rakuten: 2152, corporateDC: 0, rsu: 0,
+    yuchoBenri: 208, yuchoYulin: 20, mizuhoCash: 20,
+    wechat: 16.8, alipay: 18.0, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.0,
+    // totalJPY=2400, CNY=731, piggy=1000, grand=4131 ✓
+    memo: "断面4130万",
   },
+  // 2024/12/27断面: 楽天2270+ゆうちょ150+Yulinゆうちょ20+みずほ20=2460万, CNY34.5万元=739万(rate21.4), piggy=1000, grand=4199
   {
     yearMonth: "2024-12",
-    rakuten: 3000, corporateDC: 115, rsu: 0,
-    yuchoBenri: 225, yuchoYulin: 0, mizuhoCash: 20,
-    wechat: 24.8, alipay: 0, icbc: 0,
-    yulinPiggyJPY: 1000, cnyJpyRate: 21.77,
-    // totalJPY=3360, CNY=540, grand=4900 ✓
-    memo: "最高値更新・断面4900万",
+    rakuten: 2270, corporateDC: 0, rsu: 0,
+    yuchoBenri: 150, yuchoYulin: 20, mizuhoCash: 20,
+    wechat: 16.6, alipay: 17.9, icbc: 0,
+    yulinPiggyJPY: 1000, cnyJpyRate: 21.4,
+    // totalJPY=2460, CNY=739, piggy=1000, grand=4199 ✓
+    memo: "断面4200万（年初一括準備）",
   },
 
   // -------- 2025 --------

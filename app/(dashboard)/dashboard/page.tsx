@@ -151,12 +151,21 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-bold text-gray-900">ダッシュボード</h1>
           <p className="text-sm text-gray-500 mt-0.5">{formatYearMonth(latest.yearMonth)} 時点</p>
         </div>
-        <Link
-          href="/input"
-          className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
-        >
-          + 月次入力
-        </Link>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleSeed}
+            disabled={seeding || seedDone}
+            className="bg-gray-100 text-gray-600 px-3 py-2 rounded-xl text-xs font-medium hover:bg-gray-200 transition-colors disabled:opacity-50"
+          >
+            {seeding ? "インポート中..." : seedDone ? "完了！" : "↺ 再インポート"}
+          </button>
+          <Link
+            href="/input"
+            className="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            + 月次入力
+          </Link>
+        </div>
       </div>
 
       {/* 総資産カード */}
